@@ -21,7 +21,7 @@ export default function NotesSection({ selectedRangeKey, selectedStartDate, sele
           whileTap={{ scale: selectedStartDate ? 0.97 : 1 }}
           disabled={!selectedStartDate}
           onClick={onOpenSelected}
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-neutral-950 shadow-soft transition disabled:cursor-not-allowed disabled:bg-white/[0.12] disabled:text-white/[0.35]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-neutral-950 shadow-soft transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:bg-white/[0.12] disabled:text-white/[0.35]"
         >
           <Plus size={16} />
           {selectedNote ? "Edit note" : "Add note"}
@@ -29,41 +29,46 @@ export default function NotesSection({ selectedRangeKey, selectedStartDate, sele
       </div>
 
       <div className="mt-5 grid gap-3 lg:grid-cols-[1fr_1.2fr]">
-        <div className="rounded-xl border border-white/10 bg-black/[0.18] p-4">
+        <div className="rounded-xl border border-white/10 bg-black/[0.22] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <div className="mb-3 flex items-center gap-2 text-sm font-medium text-white/[0.78]">
             <NotebookPen size={16} />
             Active range
           </div>
           {selectedStartDate ? (
             <p className="min-h-16 text-sm leading-6 text-white/[0.64]">
-              {selectedNote?.trim() || "No plans yet. Select a date to start ✨"}
+              {selectedNote?.trim() || "No plans yet. Select a date to start."}
             </p>
           ) : (
-            <p className="min-h-16 text-sm leading-6 text-white/[0.48]">No plans yet. Select a date to start ✨</p>
+            <p className="min-h-16 text-sm leading-6 text-white/[0.48]">No plans yet. Select a date to start.</p>
           )}
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-black/[0.18] p-4">
-          <p className="mb-3 text-sm font-medium text-white/[0.78]">Saved notes</p>
+        <div className="rounded-xl border border-white/10 bg-black/[0.22] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <p className="mb-4 text-sm font-medium text-white/[0.84]">Saved notes</p>
           {savedNotes.length ? (
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {savedNotes.map(([rangeKey, note]) => {
                 const range = parseRangeKey(rangeKey);
                 return (
-                  <button
+                  <motion.button
                     key={rangeKey}
                     type="button"
+                    whileHover={{ y: -4, scale: 1.01 }}
+                    whileTap={{ scale: 0.985 }}
                     onClick={() => onOpenRange(rangeKey)}
-                    className="rounded-lg border border-white/10 bg-white/[0.06] p-3 text-left transition hover:border-[color:var(--accent)] hover:bg-white/[0.1]"
+                    className="group relative min-h-24 overflow-hidden rounded-xl border border-white/[0.12] bg-white/[0.08] p-4 text-left shadow-[0_8px_20px_rgba(0,0,0,0.25)] backdrop-blur-[10px] transition duration-200 hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                   >
-                    <p className="text-xs font-semibold text-[var(--accent)]">{formatRange(range.startKey, range.endKey)}</p>
-                    <p className="mt-2 line-clamp-2 text-sm leading-5 text-white/[0.62]">{note}</p>
-                  </button>
+                    <span className="absolute inset-y-3 left-0 w-1 rounded-r bg-[var(--accent)]" />
+                    <div className="pl-3">
+                      <p className="text-sm font-semibold text-[var(--accent)]">{formatRange(range.startKey, range.endKey)}</p>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/[0.85]">{note}</p>
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
           ) : (
-            <div className="flex min-h-24 items-center rounded-lg border border-dashed border-white/[0.14] px-4 text-sm text-white/[0.46]">
+            <div className="flex min-h-24 items-center rounded-xl border border-dashed border-white/[0.14] bg-white/[0.04] px-4 text-sm text-white/[0.58]">
               No saved notes yet. Your selected dates will stay here after you add a plan.
             </div>
           )}

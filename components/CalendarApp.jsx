@@ -34,6 +34,10 @@ export default function CalendarApp() {
     setCurrentMonth(today);
   }
 
+  function focusDate(date) {
+    setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+  }
+
   const themeStyle = {
     "--accent": hero.accent,
     "--accent-soft": hero.accentSoft,
@@ -88,6 +92,7 @@ export default function CalendarApp() {
                 onPreviousMonth={() => moveMonth(-1)}
                 onNextMonth={() => moveMonth(1)}
                 onToday={goToToday}
+                onFocusDate={focusDate}
               />
             </motion.div>
           </AnimatePresence>

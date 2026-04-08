@@ -26,6 +26,15 @@ textarea {
   font: inherit;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
 ::selection {
   background: var(--accent);
   color: #0a0a0a;

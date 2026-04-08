@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Trash2, X } from "lucide-react";
 import { formatRange, parseRangeKey } from "@/lib/date";
@@ -9,10 +9,54 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
   const [draft, setDraft] = useState(value || "");
   const isOpen = Boolean(rangeKey);
   const range = rangeKey ? parseRangeKey(rangeKey) : null;
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     setDraft(value || "");
   }, [value, rangeKey]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    textareaRef.current?.focus();
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        saveNote();
+      }
+
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll(
+          'button, textarea, [href], input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        const items = Array.from(focusable).filter((element) => !element.hasAttribute("disabled"));
+        if (!items.length) return;
+
+        const first = items[0];
+        const last = items[items.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   function saveNote() {
     if (!rangeKey) return;
@@ -42,19 +86,27 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            aria-describedby={descriptionId}
             className="w-full max-w-xl rounded-2xl border border-white/[0.14] bg-neutral-950/[0.92] p-5 text-white shadow-premium backdrop-blur-2xl"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">Calendar note</p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight">{range ? formatRange(range.startKey, range.endKey) : ""}</h2>
+                <h2 id={titleId} className="mt-2 text-2xl font-semibold tracking-tight">{range ? formatRange(range.startKey, range.endKey) : ""}</h2>
+                <p id={descriptionId} className="mt-2 text-sm text-white/[0.58]">
+                  Press Escape to close. Press Control plus Enter to save quickly.
+                </p>
               </div>
               <button
                 type="button"
                 aria-label="Close"
                 onClick={onClose}
-                className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-2 text-white/70 transition hover:bg-white/[0.12] hover:text-white"
+                className="rounded-lg border border-white/[0.12] bg-white/[0.06] p-2 text-white/70 transition hover:bg-white/[0.12] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               >
                 <X size={18} />
               </button>
@@ -63,9 +115,9 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
             <label className="mt-5 block">
               <span className="text-sm font-medium text-white/[0.72]">What should this time hold?</span>
               <textarea
+                ref={textareaRef}
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
-                autoFocus
                 rows={7}
                 placeholder="Write the plan, reminder, ritual, or tiny next step..."
                 className="mt-3 w-full resize-none rounded-xl border border-white/[0.12] bg-white/[0.06] p-4 text-sm leading-6 text-white outline-none transition placeholder:text-white/[0.28] focus:border-[color:var(--accent)] focus:bg-white/[0.09]"
@@ -76,7 +128,7 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
               <button
                 type="button"
                 onClick={deleteNote}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/70 transition hover:border-rose-300/50 hover:bg-rose-500/10 hover:text-rose-100"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/70 transition hover:border-rose-300/50 hover:bg-rose-500/10 hover:text-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70"
               >
                 <Trash2 size={16} />
                 Delete
@@ -85,7 +137,7 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-lg border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/[0.72] transition hover:bg-white/[0.12] hover:text-white"
+                  className="rounded-lg border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/[0.72] transition hover:bg-white/[0.12] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                 >
                   Cancel
                 </button>
@@ -94,7 +146,7 @@ export default function NoteModal({ rangeKey, value, onClose, onSave, onDelete }
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={saveNote}
-                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-neutral-950 shadow-soft"
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-neutral-950 shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   Save note
                 </motion.button>

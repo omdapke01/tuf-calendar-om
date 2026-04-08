@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, Sparkles } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { formatRange } from "@/lib/date";
 
 export default function HeroImagePanel({ hero, selectedStartDate, selectedEndDate }) {
@@ -25,10 +25,6 @@ export default function HeroImagePanel({ hero, selectedStartDate, selectedEndDat
           transition={{ duration: 0.38, ease: "easeOut" }}
           className="max-w-md"
         >
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/[0.18] bg-black/25 px-3 py-1.5 text-xs font-medium text-white/[0.85] backdrop-blur-xl">
-            <Sparkles size={14} />
-            Adaptive palette
-          </div>
           <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{hero.title}</h2>
           <p className="mt-3 text-base leading-7 text-white/[0.76]">{hero.caption}</p>
           <div className="mt-6 rounded-xl border border-white/[0.14] bg-white/[0.12] p-4 text-white shadow-soft backdrop-blur-2xl">
